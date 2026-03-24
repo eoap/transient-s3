@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seaweedfs-s3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seaweedfs-s3
+  template:
+    metadata:
+      labels:
+        app: seaweedfs-s3
+    spec:
+      containers:
+        - name: seaweedfs
+          image: chrislusf/seaweedfs:latest
+          args:
+            - server
+            - -s3
+            - -s3.config=/etc/seaweedfs/s3.json
+            - -dir=/data
+          ports:
+            - containerPort: 8333
+
+          volumeMounts:
+            - name: config
+              mountPath: /etc/seaweedfs
+            - name: data
+              mountPath: /data
+
+          readinessProbe:
+            tcpSocket:
+              port: 8333
+            initialDelaySeconds: 2
+            periodSeconds: 2
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      volumes:
+        - name: config
+          configMap:
+            name: seaweedfs-s3-config
+
+        - name: data
+          persistentVolumeClaim:
+            claimName: seaweedfs-s3-pvc

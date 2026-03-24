@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seaweedfs-s3-config
+data:
+  s3.json: |
+    {
+      "identities": [
+        {
+          "name": "default",
+          "credentials": [
+            {
+              "accessKey": "s3",
+              "secretKey": "s3"
+            }
+          ],
+          "actions": ["Admin", "Read", "Write", "List"]
+        }
+      ]
+    }
